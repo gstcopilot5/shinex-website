@@ -58,7 +58,7 @@ const services = [
                                                                             { year: "2026", title: "500+ Cars & Counting", desc: "Trusted by car lovers across 8 cities. Every car is a relationship earned." },
                                                                             ];
 
-                                                    ]const testimonials = [
+                                                    const testimonials = [
                                                       { name: "Arjun Das", area: "Salt Lake", text: "Ceramic coating done at my home. Car looks better than showroom delivery day.", service: "Ceramic" },
                                                         { name: "Priya Sharma", area: "New Town", text: "Deep glossy shine even after weeks. The water just rolls off. Incredible.", service: "Ceramic" },
                                                           { name: "Sourav Mitra", area: "Howrah", text: "PPF installed flawlessly. They explained every step. True professionals.", service: "PPF" },
