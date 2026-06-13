@@ -102,7 +102,8 @@ const services = [
 
                                                                                                                                                                         /* PAGES */
 
-                                                                                                                    }          function HomePage({ go }) {
+                                                                                                                    }
+function HomePage({ go }) {
                                                                                                                       const [activeBA, setActiveBA] = useState(0);
                                                                                                                         const [slider, setSlider] = useState(50);
                                                                                                                           const [openFaq, setOpenFaq] = useState(null);
