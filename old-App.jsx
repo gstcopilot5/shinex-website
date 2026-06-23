@@ -1,24 +1,22 @@
 import { useState, useEffect } from "react";
 
-const WHATSAPP = "918918604945";
+const WHATSAPP = "917349152274";
 const PHONE = "7349152274";
-const EMAIL = "info@shinexcardetailing.com";
-const INSTAGRAM = "https://instagram.com/shinexcardetailing5";
-const FACEBOOK = "https://facebook.com/share/1978Y5JYQa/";
-const YOUTUBE = "https://youtube.com/@shinexcardetailing";
+const EMAIL = "shinexcardetailing@gmail.com"; // TODO confirm
+const INSTAGRAM = "https://instagram.com/shinexcardetailing"; // TODO confirm
+const FACEBOOK = "https://facebook.com/shinexcardetailing"; // TODO confirm
+const YOUTUBE = "https://youtube.com/@shinexcardetailing"; // TODO confirm
 const ADDRESS = "Krishna Dev Pur, Kalna, Purba Bardhaman, 713405";
 const LANDMARK = "Near Baghnapara Railway Station";
 const MAPS_EMBED = "https://www.google.com/maps?q=Baghnapara+Railway+Station+Kalna+Purba+Bardhaman&output=embed";
 const MAPS_LINK = "https://www.google.com/maps/search/?api=1&query=Baghnapara+Railway+Station+Kalna";
 const waLink = (m) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(m)}`;
-const PHONE_DISPLAY = "+91 73491 52274";
-const WHATSAPP_DISPLAY = "+91 89186 04945";
 
 const services = [
-  { id: 1, icon: "💎", title: "Ceramic Coating", price: "₹11,999", img: "/img/svc-ceramic.jpg",
+  { id: 1, icon: "💎", title: "Ceramic Coating", price: "₹12,999", img: "/img/svc-ceramic.jpg",
     desc: "9H hardness. Mirror gloss. Water slides right off.",
     features: ["High Gloss Finish", "UV Protection", "Hydrophobic Layer", "Easy Maintenance", "Long-Term Protection"], tag: "MOST POPULAR" },
-  { id: 2, icon: "🧬", title: "Graphene Coating", price: "₹32,999", img: "/img/svc-graphene.jpg",
+  { id: 2, icon: "🧬", title: "Graphene Coating", price: "₹35,999", img: "/img/svc-graphene.jpg",
     desc: "Next-gen protection. Extreme water beading, superior heat resistance.",
     features: ["Extreme Water Repellency", "Superior Heat Resistance", "Deep Gloss Finish", "Enhanced Durability", "Anti Water-Spotting"], tag: "ADVANCED" },
   { id: 3, icon: "🛡️", title: "Paint Protection Film", price: "₹49,999", img: "/img/svc-ppf.jpg",
@@ -83,43 +81,6 @@ const faqs = [
   { q: "Which areas do you cover?", a: "Kolkata, Howrah, Hooghly, Serampore, Kalyani, Durgapur, Bardhaman, Kalna — and nearby areas." },
   { q: "Is doorstep quality same as studio?", a: "Yes. Same products, same technicians, same process. We just need a shaded parking spot." },
 ];
-
-// --- Official full-color social brand icons (inline SVG) ---
-function IGIcon({ size = 18 }) {
-  const gid = "ig-grad";
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={{ verticalAlign: "middle", marginRight: 7 }}>
-      <defs>
-        <radialGradient id={gid} cx="30%" cy="107%" r="135%">
-          <stop offset="0%" stopColor="#fdf497" />
-          <stop offset="5%" stopColor="#fdf497" />
-          <stop offset="45%" stopColor="#fd5949" />
-          <stop offset="60%" stopColor="#d6249f" />
-          <stop offset="90%" stopColor="#285AEB" />
-        </radialGradient>
-      </defs>
-      <rect x="2" y="2" width="20" height="20" rx="6" fill={`url(#${gid})`} />
-      <circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" strokeWidth="1.7" />
-      <circle cx="17.2" cy="6.8" r="1.2" fill="#fff" />
-    </svg>
-  );
-}
-function FBIcon({ size = 18 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={{ verticalAlign: "middle", marginRight: 7 }}>
-      <rect x="2" y="2" width="20" height="20" rx="6" fill="#1877F2" />
-      <path d="M15.4 12.3l.36-2.35h-2.25V8.42c0-.64.31-1.27 1.32-1.27h1.02V5.15s-.93-.16-1.82-.16c-1.86 0-3.07 1.13-3.07 3.16v1.8H8.86v2.35h2.12V18h2.6v-5.7h1.82z" fill="#fff" />
-    </svg>
-  );
-}
-function YTIcon({ size = 18 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" style={{ verticalAlign: "middle", marginRight: 7 }}>
-      <rect x="2" y="5" width="20" height="14" rx="4" fill="#FF0000" />
-      <path d="M10 8.5l5.5 3.5L10 15.5z" fill="#fff" />
-    </svg>
-  );
-}
 
 function Reveal({ children, delay = 0 }) {
   const [show, setShow] = useState(false);
@@ -436,8 +397,8 @@ function ContactPage() {
     <div className="page-pad"><div className="wrap" style={{ maxWidth: 640 }}>
       <Head eyebrow="Contact Us" title="Let's Talk" sub="We reply within 1 hour, 7 days a week" />
       <div style={{ display: "grid", gap: 14 }}>
-        <a href={waLink("Hi ShineX! I have a question.")} target="_blank" rel="noreferrer" className="card contact-row"><span style={{ fontSize: 28 }}>💬</span><div><div className="cl">WhatsApp (fastest)</div><div className="cv">{WHATSAPP_DISPLAY}</div></div></a>
-        <a href={`tel:${PHONE}`} className="card contact-row"><span style={{ fontSize: 28 }}>📞</span><div><div className="cl">Call Us</div><div className="cv">{PHONE_DISPLAY}</div></div></a>
+        <a href={waLink("Hi ShineX! I have a question.")} target="_blank" rel="noreferrer" className="card contact-row"><span style={{ fontSize: 28 }}>💬</span><div><div className="cl">WhatsApp (fastest)</div><div className="cv">+91 {PHONE}</div></div></a>
+        <a href={`tel:${PHONE}`} className="card contact-row"><span style={{ fontSize: 28 }}>📞</span><div><div className="cl">Call Us</div><div className="cv">+91 {PHONE}</div></div></a>
         <a href={`mailto:${EMAIL}`} className="card contact-row"><span style={{ fontSize: 28 }}>✉️</span><div><div className="cl">Email</div><div className="cv">{EMAIL}</div></div></a>
         <div className="card contact-row"><span style={{ fontSize: 28 }}>📍</span><div><div className="cl">Service Area</div><div className="cv">Kolkata & West Bengal</div></div></div>
       </div>
@@ -453,9 +414,9 @@ function ContactPage() {
         </div>
       </div>
       <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 28 }}>
-        <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 22px" }}><IGIcon /> Instagram</a>
-        <a href={FACEBOOK} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 22px" }}><FBIcon /> Facebook</a>
-        <a href={YOUTUBE} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 22px" }}><YTIcon /> YouTube</a>
+        <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 22px" }}>📷 Instagram</a>
+        <a href={FACEBOOK} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 22px" }}>👍 Facebook</a>
+        <a href={YOUTUBE} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 22px" }}>▶️ YouTube</a>
       </div>
     </div></div>
   );
@@ -471,15 +432,15 @@ function LegalPage({ kind }) {
         <h3>Information We Collect</h3><p>When you contact ShineX through our website, WhatsApp or phone, we collect only what you provide: name, phone, city, vehicle details and service requirements — used solely to respond and deliver our services.</p>
         <h3>How We Use It</h3><p>To provide quotes, schedule services, communicate about your booking and follow up on quality.</p>
         <h3>What We Don't Do</h3><p>We never sell, rent or trade your personal information to third parties.</p>
-        <h3>Your Rights</h3><p>Request deletion of your details anytime via WhatsApp at {WHATSAPP_DISPLAY}.</p>
-        <h3>Contact</h3><p>{EMAIL} · WhatsApp {WHATSAPP_DISPLAY}.</p>
+        <h3>Your Rights</h3><p>Request deletion of your details anytime via WhatsApp at +91 {PHONE}.</p>
+        <h3>Contact</h3><p>{EMAIL} · WhatsApp +91 {PHONE}.</p>
       </> : <>
         <h3>Services</h3><p>ShineX provides doorstep detailing (ceramic, graphene, PPF) across West Bengal. Listed prices are starting prices; final quotes depend on vehicle size and condition.</p>
         <h3>Booking & Payment</h3><p>Bookings confirmed via WhatsApp or phone. Quoted prices valid 7 days.</p>
         <h3>Service Requirements</h3><p>For doorstep service, please provide a shaded parking spot with reasonable access.</p>
         <h3>Warranty</h3><p>Coating warranties are product-specific and explained at service time, valid under recommended maintenance.</p>
         <h3>Cancellation</h3><p>Reschedule or cancel up to 24 hours before the appointment without charge.</p>
-        <h3>Contact</h3><p>{EMAIL} · WhatsApp {WHATSAPP_DISPLAY}.</p>
+        <h3>Contact</h3><p>{EMAIL} · WhatsApp +91 {PHONE}.</p>
       </>}
     </div></div>
   );
@@ -533,39 +494,6 @@ export default function App() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [offerOpen, setOfferOpen] = useState(true);
   const [admin, setAdmin] = useState(false);
-
-  // --- SEO: document title, meta description & LocalBusiness structured data ---
-  useEffect(() => {
-    document.title = "ShineX Car Detailing | Doorstep Ceramic Coating in Kolkata & West Bengal";
-    const setMeta = (name, content, attr = "name") => {
-      let el = document.querySelector(`meta[${attr}="${name}"]`);
-      if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
-      el.setAttribute("content", content);
-    };
-    const desc = "Premium doorstep car detailing & ceramic coating across Kolkata and West Bengal. We come to your home or office. Ceramic, graphene & paint protection by trained technicians. Book on WhatsApp today.";
-    setMeta("description", desc);
-    setMeta("keywords", "car detailing Kolkata, ceramic coating Kolkata, doorstep car detailing, paint protection film, graphene coating West Bengal, car detailing near me");
-    setMeta("og:title", "ShineX Car Detailing | Doorstep Ceramic Coating in Kolkata", "property");
-    setMeta("og:description", desc, "property");
-    setMeta("og:type", "website", "property");
-    setMeta("og:url", "https://shinexcardetailing.com", "property");
-    setMeta("og:image", "https://shinexcardetailing.com/shinex-logo.png", "property");
-    setMeta("twitter:card", "summary_large_image");
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) { canonical = document.createElement("link"); canonical.setAttribute("rel", "canonical"); document.head.appendChild(canonical); }
-    canonical.setAttribute("href", "https://shinexcardetailing.com");
-    let ld = document.getElementById("shinex-ldjson");
-    if (!ld) { ld = document.createElement("script"); ld.type = "application/ld+json"; ld.id = "shinex-ldjson"; document.head.appendChild(ld); }
-    ld.textContent = JSON.stringify({
-      "@context": "https://schema.org", "@type": "AutoDetailing", "name": "ShineX Car Detailing",
-      "image": "https://shinexcardetailing.com/shinex-logo.png", "url": "https://shinexcardetailing.com",
-      "telephone": "+917349152274", "email": EMAIL, "priceRange": "₹₹",
-      "address": { "@type": "PostalAddress", "addressLocality": "Kolkata", "addressRegion": "West Bengal", "addressCountry": "IN" },
-      "areaServed": cities.map((c) => ({ "@type": "City", "name": c })),
-      "sameAs": [INSTAGRAM, FACEBOOK, YOUTUBE], "description": desc
-    });
-  }, []);
-
   const [offerText, setOfferText] = useState("🎉 MONSOON OFFER — Flat 15% OFF on Ceramic Coating this month! 🎉");
   const [pwd, setPwd] = useState("");
   const go = (p) => { setPage(p); setMenuOpen(false); setNotifOpen(false); window.scrollTo(0, 0); };
@@ -779,9 +707,9 @@ export default function App() {
         </div>
         <div className="nav-actions">
           <div className="nav-soc">
-            <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="soc" aria-label="Instagram"><IGIcon /></a>
-            <a href={FACEBOOK} target="_blank" rel="noreferrer" className="soc" aria-label="Facebook"><FBIcon /></a>
-            <a href={YOUTUBE} target="_blank" rel="noreferrer" className="soc" aria-label="YouTube"><YTIcon /></a>
+            <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="soc" aria-label="Instagram">📷</a>
+            <a href={FACEBOOK} target="_blank" rel="noreferrer" className="soc" aria-label="Facebook">👍</a>
+            <a href={YOUTUBE} target="_blank" rel="noreferrer" className="soc" aria-label="YouTube">▶️</a>
           </div>
           <button className="icon-btn" onClick={() => setNotifOpen(!notifOpen)} aria-label="Notifications">🔔<span className="notif-dot" /></button>
           <a href={`tel:${PHONE}`} className="call-btn">📞 Call</a>
@@ -804,8 +732,8 @@ export default function App() {
         <div className="menu-drawer">
           {navItems.map(n => <button key={n.id} className={`menu-item ${page === n.id ? "active" : ""}`} onClick={() => go(n.id)}>{n.label}</button>)}
           <div style={{ display: "flex", gap: 14, marginTop: 28 }}>
-            <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 20px", fontSize: 13 }}><IGIcon /> Instagram</a>
-            <a href={FACEBOOK} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 20px", fontSize: 13 }}><FBIcon /> Facebook</a>
+            <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 20px", fontSize: 13 }}>📷 Instagram</a>
+            <a href={FACEBOOK} target="_blank" rel="noreferrer" className="btn btn-ghost" style={{ padding: "12px 20px", fontSize: 13 }}>👍 Facebook</a>
           </div>
           <a href={waLink("Hi ShineX!")} target="_blank" rel="noreferrer" className="btn btn-red" style={{ marginTop: 16, padding: 16 }}>💬 WhatsApp Us</a>
         </div>
@@ -826,9 +754,9 @@ export default function App() {
             <p style={{ color: "#85858d", fontSize: 14, lineHeight: 1.7, maxWidth: 320 }}>West Bengal's premium doorstep car detailing service. Detailing beyond perfection.</p>
             <h4 className="display" style={{ fontSize: 12, fontWeight: 600, color: "#e10600", letterSpacing: "0.2em", margin: "20px 0 12px" }}>FOLLOW US</h4>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="soc" aria-label="Instagram"><IGIcon /></a>
-              <a href={FACEBOOK} target="_blank" rel="noreferrer" className="soc" aria-label="Facebook"><FBIcon /></a>
-              <a href={YOUTUBE} target="_blank" rel="noreferrer" className="soc" aria-label="YouTube"><YTIcon /></a>
+              <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="soc" aria-label="Instagram">📷</a>
+              <a href={FACEBOOK} target="_blank" rel="noreferrer" className="soc" aria-label="Facebook">👍</a>
+              <a href={YOUTUBE} target="_blank" rel="noreferrer" className="soc" aria-label="YouTube">▶️</a>
               <a href={waLink("Hi ShineX!")} target="_blank" rel="noreferrer" className="soc" aria-label="WhatsApp">💬</a>
               <a href={`mailto:${EMAIL}`} className="soc" aria-label="Email">✉️</a>
             </div>
@@ -843,7 +771,7 @@ export default function App() {
           </div>
           <div><h4 className="display" style={{ fontSize: 13, fontWeight: 600, color: "#e10600", letterSpacing: "0.2em", marginBottom: 16 }}>CONTACT</h4>
             <div style={{ color: "#85858d", fontSize: 14, marginBottom: 9 }}>📍 Kolkata & West Bengal</div>
-            <a href={`tel:${PHONE}`} style={{ color: "#85858d", fontSize: 14, display: "block", marginBottom: 9, textDecoration: "none" }}>📞 {PHONE_DISPLAY}</a>
+            <a href={`tel:${PHONE}`} style={{ color: "#85858d", fontSize: 14, display: "block", marginBottom: 9, textDecoration: "none" }}>📞 +91-{PHONE}</a>
             <a href={`mailto:${EMAIL}`} style={{ color: "#85858d", fontSize: 14, display: "block", marginBottom: 9, textDecoration: "none", wordBreak: "break-all" }}>✉️ {EMAIL}</a>
           </div>
         </div>
