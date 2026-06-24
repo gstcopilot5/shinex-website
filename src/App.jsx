@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
+import AdminPage from "./AdminPage";
 
 const WHATSAPP = "918918604945";
 const PHONE = "7980702274";
@@ -489,48 +490,6 @@ function LegalPage({ kind }) {
   );
 }
 
-function AdminPage({ offerText, setOfferText, offerOpen, setOfferOpen, authed, setAuthed, pwd, setPwd }) {
-  const login = () => {
-    if (pwd === "shinex2026") setAuthed(true);
-    else alert("Wrong password. (Hint: set by your developer)");
-  };
-  if (!authed) {
-    return (
-      <div className="page-pad"><div className="wrap admin-card">
-        <Head eyebrow="Staff Only" title="Admin Login" />
-        <div className="card card-accent" style={{ padding: 28 }}>
-          <input type="password" placeholder="Enter admin password" value={pwd} onChange={(e) => setPwd(e.target.value)} onKeyDown={(e) => e.key === "Enter" && login()} />
-          <button onClick={login} className="btn btn-red" style={{ width: "100%", padding: 15, marginTop: 4 }}>Login</button>
-          <p style={{ color: "#85858d", fontSize: 12.5, marginTop: 14, textAlign: "center" }}>This is a lightweight admin. Full dashboard with database is available as an upgrade.</p>
-        </div>
-      </div></div>
-    );
-  }
-  return (
-    <div className="page-pad"><div className="wrap admin-card">
-      <Head eyebrow="Dashboard" title="Manage Site" />
-      <div className="card card-accent" style={{ padding: 28 }}>
-        <label className="cl" style={{ display: "block", marginBottom: 8 }}>Special Offer Text</label>
-        <input value={offerText} onChange={(e) => setOfferText(e.target.value)} placeholder="Offer text" />
-        <div style={{ display: "flex", gap: 10, alignItems: "center", margin: "8px 0 18px" }}>
-          <button onClick={() => setOfferOpen(!offerOpen)} className="btn btn-ghost" style={{ padding: "10px 18px", fontSize: 13 }}>
-            {offerOpen ? "Hide" : "Show"} Offer Bar
-          </button>
-          <span style={{ color: "#85858d", fontSize: 13 }}>Currently: <strong style={{ color: offerOpen ? "#1faa53" : "#e10600" }}>{offerOpen ? "Visible" : "Hidden"}</strong></span>
-        </div>
-        <div style={{ background: "#101013", borderRadius: 10, padding: 16, border: "1px solid #232328" }}>
-          <div className="cl" style={{ marginBottom: 8 }}>Live Preview</div>
-          <div style={{ background: "linear-gradient(90deg,#e10600,#ff3b30)", color: "#fff", padding: "8px 14px", borderRadius: 6, fontFamily: "Oswald, sans-serif", fontWeight: 600, fontSize: 13 }}>{offerText}</div>
-        </div>
-        <button onClick={() => setAuthed(false)} className="footer-link" style={{ marginTop: 20, color: "#e10600" }}>Log out</button>
-      </div>
-      <p style={{ color: "#85858d", fontSize: 12.5, marginTop: 16, textAlign: "center", lineHeight: 1.6 }}>
-        Note: changes here are temporary (reset on refresh). For permanent changes saved to a database and visible to all visitors, ask your developer about the Phase 2 upgrade.
-      </p>
-    </div></div>
-  );
-}
-
 export default function App() {
   const [page, setPage] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -859,7 +818,7 @@ export default function App() {
       {page === "contact" && <ContactPage />}
       {page === "privacy" && <LegalPage kind="privacy" />}
       {page === "terms" && <LegalPage kind="terms" />}
-      {page === "admin" && <AdminPage offerText={offerText} setOfferText={setOfferText} offerOpen={offerOpen} setOfferOpen={setOfferOpen} authed={admin} setAuthed={setAdmin} pwd={pwd} setPwd={setPwd} />}
+        {page === "admin" && <AdminPage />}
 
       <footer style={{ background: "#070709", borderTop: "1px solid #1d1d21", padding: "56px 20px 40px" }}>
         <div className="wrap footer-grid">
