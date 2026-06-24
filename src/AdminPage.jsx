@@ -48,6 +48,12 @@ export default function AdminPage() {
   const [bookings, setBookings] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
 
+  // offer editor
+  const [offerText, setOfferText] = useState("");
+  const [offerOpen, setOfferOpen] = useState(true);
+  const [offerSaving, setOfferSaving] = useState(false);
+  const [offerMsg, setOfferMsg] = useState("");
+
   useEffect(() => {
     let mounted = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -76,6 +82,14 @@ export default function AdminPage() {
         .select("*")
         .order("created_at", { ascending: false });
       setBookings(b || []);
+
+      const { data: s } = await supabase.from("settings").select("*");
+      if (s) {
+        const map = {};
+        s.forEach((row) => { map[row.key] = row.value; });
+        if (map.offer_text !== undefined) setOfferText(map.offer_text);
+        if (map.offer_open !== undefined) setOfferOpen(map.offer_open === "true");
+      }
     } catch (e) {
       // ignore
     }
@@ -93,6 +107,20 @@ export default function AdminPage() {
   async function handleLogout() {
     await supabase.auth.signOut();
     setSession(null);
+  }
+
+  async function saveOffer() {
+    setOfferSaving(true);
+    setOfferMsg("");
+    try {
+      await supabase.from("settings").update({ value: offerText }).eq("key", "offer_text");
+      await supabase.from("settings").update({ value: offerOpen ? "true" : "false" }).eq("key", "offer_open");
+      setOfferMsg("Saved ✓");
+    } catch (e) {
+      setOfferMsg("Save failed");
+    }
+    setOfferSaving(false);
+    setTimeout(() => setOfferMsg(""), 2500);
   }
 
   // ---- Loading splash ----
@@ -150,6 +178,37 @@ export default function AdminPage() {
         </button>
       </div>
 
+      {/* Offer bar editor */}
+      <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 18, marginBottom: 20 }}>
+        <h3 style={{ color: C.text, margin: "0 0 14px", fontSize: 17 }}>Offer Bar</h3>
+        <label style={{ color: C.dim, fontSize: 13, display: "block", marginBottom: 6 }}>Banner text</label>
+        <input
+          style={inputStyle}
+          value={offerText}
+          onChange={(e) => setOfferText(e.target.value)}
+          placeholder="Launch Offer: 15% OFF…"
+        />
+        <label style={{ display: "flex", alignItems: "center", gap: 10, color: C.text, fontSize: 14, marginBottom: 14, cursor: "pointer" }}>
+          <input
+            type="checkbox"
+            checked={offerOpen}
+            onChange={(e) => setOfferOpen(e.target.checked)}
+            style={{ width: 18, height: 18, accentColor: C.red }}
+          />
+          Show offer bar on site
+        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            onClick={saveOffer}
+            disabled={offerSaving}
+            style={{ ...btnStyle, width: "auto", padding: "10px 22px", opacity: offerSaving ? 0.6 : 1 }}
+          >
+            {offerSaving ? "Saving…" : "Save"}
+          </button>
+          {offerMsg && <span style={{ color: offerMsg.includes("fail") ? C.red : "#4ade80", fontSize: 14 }}>{offerMsg}</span>}
+        </div>
+      </section>
+
       {/* Bookings */}
       <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 18, marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
@@ -186,9 +245,9 @@ export default function AdminPage() {
       </section>
 
       <p style={{ color: C.dim, fontSize: 12, textAlign: "center" }}>
-        Services, gallery & offer editing coming in the next update.
+        Services & gallery editing coming in the next update.
       </p>
     </div>
   );
-          }
-
+            }
+            
