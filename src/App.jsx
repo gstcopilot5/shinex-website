@@ -152,8 +152,11 @@ function HomePage({ go, services }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [form, setForm] = useState({ name: "", phone: "", city: "", vehicle: "", service: "" });
   const fc = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const submit = () => {
+  const submit = async () => {
     if (!form.name || !form.phone) return alert("Please enter your name and phone number.");
+    try {
+      await supabase.from("bookings").insert([{ name: form.name, phone: form.phone, city: form.city, vehicle: form.vehicle, service: form.service }]);
+    } catch (e) { /* save best-effort, still open WhatsApp */ }
     window.open(waLink(`Hi ShineX! I want a free quote.\n\nName: ${form.name}\nPhone: ${form.phone}\nCity: ${form.city}\nVehicle: ${form.vehicle}\nService: ${form.service}`), "_blank");
   };
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
