@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
 const WHATSAPP = "918918604945";
-const PHONE = "7349152274";
+const PHONE = "7980702274";
 const EMAIL = "info@shinexcardetailing.com";
 const INSTAGRAM = "https://instagram.com/shinexcardetailing5";
 const FACEBOOK = "https://facebook.com/share/1978Y5JYQa/";
@@ -12,7 +12,7 @@ const LANDMARK = "Near Baghnapara Railway Station";
 const MAPS_EMBED = "https://www.google.com/maps?q=Baghnapara+Railway+Station+Kalna+Purba+Bardhaman&output=embed";
 const MAPS_LINK = "https://www.google.com/maps/search/?api=1&query=Baghnapara+Railway+Station+Kalna";
 const waLink = (m) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(m)}`;
-const PHONE_DISPLAY = "+91 73491 52274";
+const PHONE_DISPLAY = "+91 79807 02274";
 const WHATSAPP_DISPLAY = "+91 89186 04945";
 
 const servicesFallback = [
