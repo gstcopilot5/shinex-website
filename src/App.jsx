@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { supabase } from "./supabaseClient";
 
 const WHATSAPP = "918918604945";
 const PHONE = "7349152274";
@@ -568,6 +569,19 @@ export default function App() {
 
   const [offerText, setOfferText] = useState("🎉 MONSOON OFFER — Flat 15% OFF on Ceramic Coating this month! 🎉");
   const [pwd, setPwd] = useState("");
+
+  // --- Load offer bar settings from Supabase ---
+  useEffect(() => {
+    async function loadOffer() {
+      const { data, error } = await supabase.from("settings").select("key, value");
+      if (error || !data) return;
+      const map = {};
+      data.forEach((row) => { map[row.key] = row.value; });
+      if (map.offer_text) setOfferText(map.offer_text);
+      if (map.offer_open !== undefined) setOfferOpen(map.offer_open === "true");
+    }
+    loadOffer();
+  }, []);
   const go = (p) => { setPage(p); setMenuOpen(false); setNotifOpen(false); window.scrollTo(0, 0); };
   useEffect(() => { document.body.style.overflow = menuOpen ? "hidden" : ""; }, [menuOpen]);
 
