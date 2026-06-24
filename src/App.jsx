@@ -413,7 +413,7 @@ function AboutPage() {
   );
 }
 
-function GalleryPage() {
+function GalleryPage({ gallery }) {
   return (
     <div className="page-pad"><div className="wrap">
       <Head eyebrow="Our Work" title="Gallery" sub="Real transformations, real shine" />
@@ -852,7 +852,7 @@ export default function App() {
 
       {page === "home" && <HomePage go={go} services={services} />}
       {page === "about" && <AboutPage />}
-      {page === "gallery" && <GalleryPage />}
+      {page === "gallery" && <GalleryPage gallery={gallery} />}
       {page === "contact" && <ContactPage />}
       {page === "privacy" && <LegalPage kind="privacy" />}
       {page === "terms" && <LegalPage kind="terms" />}
