@@ -29,7 +29,7 @@ const servicesFallback = [
 
 const cities = ["Kolkata", "Howrah", "Hooghly", "Serampore", "Kalyani", "Durgapur", "Bardhaman", "Kalna"];
 
-const gallery = [
+const galleryFallback = [
   { src: "/img/gal-lambo.jpg", label: "Paint Correction" },
   { src: "/img/gal-ferrari.jpg", label: "Foam Wash" },
   { src: "/img/gal-audi.jpg", label: "Ceramic Coating" },
@@ -570,6 +570,7 @@ export default function App() {
   const [offerText, setOfferText] = useState("🎉 MONSOON OFFER — Flat 15% OFF on Ceramic Coating this month! 🎉");
   const [pwd, setPwd] = useState("");
   const [services, setServices] = useState(servicesFallback);
+  const [gallery, setGallery] = useState(galleryFallback);
 
   // --- Load services from Supabase ---
   useEffect(() => {
@@ -582,6 +583,16 @@ export default function App() {
       })));
     }
     loadServices();
+  }, []);
+
+  // --- Load gallery from Supabase ---
+  useEffect(() => {
+    async function loadGallery() {
+      const { data, error } = await supabase.from("gallery").select("*").order("sort_order");
+      if (error || !data || data.length === 0) return;
+      setGallery(data.map((g) => ({ src: g.src, label: g.label })));
+    }
+    loadGallery();
   }, []);
 
   // --- Load offer bar settings from Supabase ---
