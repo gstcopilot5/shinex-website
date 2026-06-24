@@ -39,6 +39,7 @@ const btnStyle = {
 const labelStyle = { color: C.dim, fontSize: 12, display: "block", marginBottom: 4, marginTop: 4 };
 
 const emptyService = { title: "", icon: "", price: "", tag: "", image: "", description: "", features: [], sort_order: 0 };
+const emptyGallery = { src: "", label: "", sort_order: 0 };
 
 export default function AdminPage() {
   const [session, setSession] = useState(null);
@@ -53,6 +54,7 @@ export default function AdminPage() {
   // data
   const [bookings, setBookings] = useState([]);
   const [services, setServices] = useState([]);
+  const [gallery, setGallery] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
 
   // offer editor
@@ -62,9 +64,14 @@ export default function AdminPage() {
   const [offerMsg, setOfferMsg] = useState("");
 
   // service editor
-  const [editing, setEditing] = useState(null); // service object being edited (or new)
+  const [editing, setEditing] = useState(null);
   const [svcSaving, setSvcSaving] = useState(false);
   const [svcMsg, setSvcMsg] = useState("");
+
+  // gallery editor
+  const [galEditing, setGalEditing] = useState(null);
+  const [galSaving, setGalSaving] = useState(false);
+  const [galMsg, setGalMsg] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -95,11 +102,11 @@ export default function AdminPage() {
         .order("created_at", { ascending: false });
       setBookings(b || []);
 
-      const { data: sv } = await supabase
-        .from("services")
-        .select("*")
-        .order("sort_order");
+      const { data: sv } = await supabase.from("services").select("*").order("sort_order");
       setServices(sv || []);
+
+      const { data: g } = await supabase.from("gallery").select("*").order("sort_order");
+      setGallery(g || []);
 
       const { data: s } = await supabase.from("settings").select("*");
       if (s) {
@@ -147,17 +154,11 @@ export default function AdminPage() {
     setEditing({ ...emptyService, sort_order: maxOrder + 1 });
     setSvcMsg("");
   }
-
   function startEdit(s) {
     setEditing({ ...s, features: Array.isArray(s.features) ? s.features : [] });
     setSvcMsg("");
   }
-
-  function cancelEdit() {
-    setEditing(null);
-    setSvcMsg("");
-  }
-
+  function cancelEdit() { setEditing(null); setSvcMsg(""); }
   async function saveService() {
     if (!editing.title) { setSvcMsg("Title is required"); return; }
     setSvcSaving(true);
@@ -185,15 +186,50 @@ export default function AdminPage() {
     }
     setSvcSaving(false);
   }
-
   async function deleteService(id) {
     if (!window.confirm("Delete this service?")) return;
     try {
       await supabase.from("services").delete().eq("id", id);
       await loadAll();
+    } catch (e) {}
+  }
+
+  // ---- Gallery CRUD ----
+  function startNewGal() {
+    const maxOrder = gallery.reduce((m, g) => Math.max(m, g.sort_order || 0), 0);
+    setGalEditing({ ...emptyGallery, sort_order: maxOrder + 1 });
+    setGalMsg("");
+  }
+  function startEditGal(g) { setGalEditing({ ...g }); setGalMsg(""); }
+  function cancelGal() { setGalEditing(null); setGalMsg(""); }
+  async function saveGallery() {
+    if (!galEditing.src) { setGalMsg("Image path is required"); return; }
+    setGalSaving(true);
+    setGalMsg("");
+    const payload = {
+      src: galEditing.src,
+      label: galEditing.label,
+      sort_order: Number(galEditing.sort_order) || 0,
+    };
+    try {
+      if (galEditing.id) {
+        await supabase.from("gallery").update(payload).eq("id", galEditing.id);
+      } else {
+        await supabase.from("gallery").insert([payload]);
+      }
+      await loadAll();
+      setGalEditing(null);
     } catch (e) {
-      // ignore
+      setGalMsg("Save failed");
     }
+    setGalSaving(false);
+  }
+  async function deleteGallery(id) {
+    if (!window.confirm("Delete this image?")) return;
+    try {
+      await supabase.from("gallery").delete().eq("id", id);
+      await loadAll();
+    } catch (e) {}
   }
 
   // ---- Loading splash ----
@@ -212,23 +248,8 @@ export default function AdminPage() {
         <div style={{ width: "100%", maxWidth: 380, background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 28 }}>
           <h2 style={{ color: C.text, margin: "0 0 6px", fontSize: 22 }}>ShineX Admin</h2>
           <p style={{ color: C.dim, margin: "0 0 20px", fontSize: 14 }}>Sign in to manage your site.</p>
-          <input
-            style={inputStyle}
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="username"
-          />
-          <input
-            style={inputStyle}
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            autoComplete="current-password"
-          />
+          <input style={inputStyle} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
+          <input style={inputStyle} type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleLogin()} autoComplete="current-password" />
           {loginErr && <p style={{ color: C.red, fontSize: 13, margin: "0 0 12px" }}>{loginErr}</p>}
           <button style={{ ...btnStyle, opacity: loggingIn ? 0.6 : 1 }} onClick={handleLogin} disabled={loggingIn}>
             {loggingIn ? "Signing in…" : "Sign In"}
@@ -243,10 +264,7 @@ export default function AdminPage() {
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 16px 60px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
         <h2 style={{ color: C.text, margin: 0, fontSize: 22 }}>Dashboard</h2>
-        <button
-          onClick={handleLogout}
-          style={{ background: "none", border: `1px solid ${C.border}`, color: C.dim, padding: "8px 14px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}
-        >
+        <button onClick={handleLogout} style={{ background: "none", border: `1px solid ${C.border}`, color: C.dim, padding: "8px 14px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
           Log out
         </button>
       </div>
@@ -255,27 +273,13 @@ export default function AdminPage() {
       <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 18, marginBottom: 20 }}>
         <h3 style={{ color: C.text, margin: "0 0 14px", fontSize: 17 }}>Offer Bar</h3>
         <label style={labelStyle}>Banner text</label>
-        <input
-          style={inputStyle}
-          value={offerText}
-          onChange={(e) => setOfferText(e.target.value)}
-          placeholder="Launch Offer: 15% OFF…"
-        />
+        <input style={inputStyle} value={offerText} onChange={(e) => setOfferText(e.target.value)} placeholder="Launch Offer: 15% OFF…" />
         <label style={{ display: "flex", alignItems: "center", gap: 10, color: C.text, fontSize: 14, marginBottom: 14, cursor: "pointer" }}>
-          <input
-            type="checkbox"
-            checked={offerOpen}
-            onChange={(e) => setOfferOpen(e.target.checked)}
-            style={{ width: 18, height: 18, accentColor: C.red }}
-          />
+          <input type="checkbox" checked={offerOpen} onChange={(e) => setOfferOpen(e.target.checked)} style={{ width: 18, height: 18, accentColor: C.red }} />
           Show offer bar on site
         </label>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <button
-            onClick={saveOffer}
-            disabled={offerSaving}
-            style={{ ...btnStyle, width: "auto", padding: "10px 22px", opacity: offerSaving ? 0.6 : 1 }}
-          >
+          <button onClick={saveOffer} disabled={offerSaving} style={{ ...btnStyle, width: "auto", padding: "10px 22px", opacity: offerSaving ? 0.6 : 1 }}>
             {offerSaving ? "Saving…" : "Save"}
           </button>
           {offerMsg && <span style={{ color: offerMsg.includes("fail") ? C.red : "#4ade80", fontSize: 14 }}>{offerMsg}</span>}
@@ -287,9 +291,7 @@ export default function AdminPage() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
           <h3 style={{ color: C.text, margin: 0, fontSize: 17 }}>Services ({services.length})</h3>
           {!editing && (
-            <button onClick={startNew} style={{ background: C.red, border: "none", color: "#fff", fontSize: 13, fontWeight: 700, padding: "8px 14px", borderRadius: 8, cursor: "pointer" }}>
-              + Add
-            </button>
+            <button onClick={startNew} style={{ background: C.red, border: "none", color: "#fff", fontSize: 13, fontWeight: 700, padding: "8px 14px", borderRadius: 8, cursor: "pointer" }}>+ Add</button>
           )}
         </div>
 
@@ -298,7 +300,6 @@ export default function AdminPage() {
             <h4 style={{ color: C.text, margin: "0 0 12px", fontSize: 15 }}>{editing.id ? "Edit service" : "New service"}</h4>
             <label style={labelStyle}>Title *</label>
             <input style={smallInput} value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} placeholder="Ceramic Coating" />
-
             <div style={{ display: "flex", gap: 8 }}>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Icon (emoji)</label>
@@ -309,7 +310,6 @@ export default function AdminPage() {
                 <input style={smallInput} value={editing.price} onChange={(e) => setEditing({ ...editing, price: e.target.value })} placeholder="₹11,999" />
               </div>
             </div>
-
             <div style={{ display: "flex", gap: 8 }}>
               <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Tag / badge</label>
@@ -320,28 +320,15 @@ export default function AdminPage() {
                 <input style={smallInput} type="number" value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: e.target.value })} />
               </div>
             </div>
-
             <label style={labelStyle}>Image path</label>
             <input style={smallInput} value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} placeholder="/img/svc-ceramic.jpg" />
-
             <label style={labelStyle}>Description</label>
             <textarea style={{ ...smallInput, minHeight: 56, resize: "vertical" }} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} placeholder="9H hardness. Mirror gloss…" />
-
             <label style={labelStyle}>Features (one per line)</label>
-            <textarea
-              style={{ ...smallInput, minHeight: 90, resize: "vertical" }}
-              value={(editing.features || []).join("\n")}
-              onChange={(e) => setEditing({ ...editing, features: e.target.value.split("\n").map((f) => f.trim()).filter(Boolean) })}
-              placeholder={"High Gloss Finish\nUV Protection\nHydrophobic Layer"}
-            />
-
+            <textarea style={{ ...smallInput, minHeight: 90, resize: "vertical" }} value={(editing.features || []).join("\n")} onChange={(e) => setEditing({ ...editing, features: e.target.value.split("\n").map((f) => f.trim()).filter(Boolean) })} placeholder={"High Gloss Finish\nUV Protection"} />
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
-              <button onClick={saveService} disabled={svcSaving} style={{ ...btnStyle, width: "auto", padding: "10px 22px", opacity: svcSaving ? 0.6 : 1 }}>
-                {svcSaving ? "Saving…" : "Save"}
-              </button>
-              <button onClick={cancelEdit} style={{ background: "none", border: `1px solid ${C.border}`, color: C.dim, padding: "10px 18px", borderRadius: 10, fontSize: 14, cursor: "pointer" }}>
-                Cancel
-              </button>
+              <button onClick={saveService} disabled={svcSaving} style={{ ...btnStyle, width: "auto", padding: "10px 22px", opacity: svcSaving ? 0.6 : 1 }}>{svcSaving ? "Saving…" : "Save"}</button>
+              <button onClick={cancelEdit} style={{ background: "none", border: `1px solid ${C.border}`, color: C.dim, padding: "10px 18px", borderRadius: 10, fontSize: 14, cursor: "pointer" }}>Cancel</button>
               {svcMsg && <span style={{ color: C.red, fontSize: 13 }}>{svcMsg}</span>}
             </div>
           </div>
@@ -368,45 +355,64 @@ export default function AdminPage() {
         )}
       </section>
 
-      {/* Bookings */}
+      {/* Gallery CRUD */}
       <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 18, marginBottom: 20 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-          <h3 style={{ color: C.text, margin: 0, fontSize: 17 }}>Bookings ({bookings.length})</h3>
-          <button onClick={loadAll} style={{ background: "none", border: "none", color: C.red, fontSize: 13, cursor: "pointer" }}>
-            ↻ Refresh
-          </button>
+          <h3 style={{ color: C.text, margin: 0, fontSize: 17 }}>Gallery ({gallery.length})</h3>
+          {!galEditing && (
+            <button onClick={startNewGal} style={{ background: C.red, border: "none", color: "#fff", fontSize: 13, fontWeight: 700, padding: "8px 14px", borderRadius: 8, cursor: "pointer" }}>+ Add</button>
+          )}
         </div>
-        {loadingData ? (
-          <p style={{ color: C.dim, fontSize: 14 }}>Loading…</p>
-        ) : bookings.length === 0 ? (
-          <p style={{ color: C.dim, fontSize: 14 }}>No bookings yet.</p>
+
+        {galEditing ? (
+          <div style={{ background: "#1d1d23", borderRadius: 10, padding: 14 }}>
+            <h4 style={{ color: C.text, margin: "0 0 12px", fontSize: 15 }}>{galEditing.id ? "Edit image" : "New image"}</h4>
+            <label style={labelStyle}>Image path *</label>
+            <input style={smallInput} value={galEditing.src} onChange={(e) => setGalEditing({ ...galEditing, src: e.target.value })} placeholder="/img/gal-audi.jpg" />
+            <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ flex: 1 }}>
+                <label style={labelStyle}>Label</label>
+                <input style={smallInput} value={galEditing.label} onChange={(e) => setGalEditing({ ...galEditing, label: e.target.value })} placeholder="Ceramic Coating" />
+              </div>
+              <div style={{ width: 90 }}>
+                <label style={labelStyle}>Order</label>
+                <input style={smallInput} type="number" value={galEditing.sort_order} onChange={(e) => setGalEditing({ ...galEditing, sort_order: e.target.value })} />
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
+              <button onClick={saveGallery} disabled={galSaving} style={{ ...btnStyle, width: "auto", padding: "10px 22px", opacity: galSaving ? 0.6 : 1 }}>{galSaving ? "Saving…" : "Save"}</button>
+              <button onClick={cancelGal} style={{ background: "none", border: `1px solid ${C.border}`, color: C.dim, padding: "10px 18px", borderRadius: 10, fontSize: 14, cursor: "pointer" }}>Cancel</button>
+              {galMsg && <span style={{ color: C.red, fontSize: 13 }}>{galMsg}</span>}
+            </div>
+          </div>
+        ) : gallery.length === 0 ? (
+          <p style={{ color: C.dim, fontSize: 14 }}>No images yet.</p>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {bookings.map((b) => (
-              <div key={b.id} style={{ background: "#1d1d23", borderRadius: 10, padding: "12px 14px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <strong style={{ color: C.text, fontSize: 15 }}>{b.name || "—"}</strong>
-                  <span style={{ color: C.dim, fontSize: 12 }}>
-                    {b.created_at ? new Date(b.created_at).toLocaleDateString() : ""}
-                  </span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {gallery.map((g) => (
+              <div key={g.id} style={{ background: "#1d1d23", borderRadius: 10, padding: "10px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                  <img src={g.src} alt="" style={{ width: 44, height: 44, borderRadius: 8, objectFit: "cover", flexShrink: 0, background: "#000" }} />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ color: C.text, fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{g.label || "—"}</div>
+                    <div style={{ color: C.dim, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{g.src}</div>
+                  </div>
                 </div>
-                <div style={{ color: C.dim, fontSize: 13, marginTop: 4 }}>
-                  <a href={`tel:${b.phone}`} style={{ color: C.red, textDecoration: "none" }}>{b.phone || "—"}</a>
-                  {b.city ? ` · ${b.city}` : ""}
-                  {b.vehicle ? ` · ${b.vehicle}` : ""}
+                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                  <button onClick={() => startEditGal(g)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.text, padding: "6px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>Edit</button>
+                  <button onClick={() => deleteGallery(g.id)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.red, padding: "6px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>Del</button>
                 </div>
-                {b.service ? <div style={{ color: C.text, fontSize: 13, marginTop: 4 }}>{b.service}</div> : null}
-                {b.message ? <div style={{ color: C.dim, fontSize: 13, marginTop: 4 }}>{b.message}</div> : null}
               </div>
             ))}
           </div>
         )}
       </section>
 
-      <p style={{ color: C.dim, fontSize: 12, textAlign: "center" }}>
-        Gallery editing coming in the next update.
-      </p>
-    </div>
-  );
-        }
-      
+      {/* Bookings */}
+      <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 18, marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <h3 style={{ color: C.text, margin: 0, fontSize: 17 }}>Bookings ({bookings.length})</h3>
+          <button onClick={loadAll} style={{ background: "none", border: "none", color: C.red, fontSize: 13, cursor: "pointer" }}>↻ Refresh</button>
+        </div>
+        {loadingData ? (
+          <p s
