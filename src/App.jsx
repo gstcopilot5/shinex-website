@@ -15,7 +15,7 @@ const waLink = (m) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(m)}`;
 const PHONE_DISPLAY = "+91 73491 52274";
 const WHATSAPP_DISPLAY = "+91 89186 04945";
 
-const services = [
+const servicesFallback = [
   { id: 1, icon: "💎", title: "Ceramic Coating", price: "₹11,999", img: "/img/svc-ceramic.jpg",
     desc: "9H hardness. Mirror gloss. Water slides right off.",
     features: ["High Gloss Finish", "UV Protection", "Hydrophobic Layer", "Easy Maintenance", "Long-Term Protection"], tag: "MOST POPULAR" },
@@ -146,7 +146,7 @@ function Head({ eyebrow, title, sub }) {
 }
 
 /* PAGES */
-function HomePage({ go }) {
+function HomePage({ go, services }) {
   const [activeBA, setActiveBA] = useState(0);
   const [slider, setSlider] = useState(50);
   const [openFaq, setOpenFaq] = useState(null);
@@ -569,6 +569,20 @@ export default function App() {
 
   const [offerText, setOfferText] = useState("🎉 MONSOON OFFER — Flat 15% OFF on Ceramic Coating this month! 🎉");
   const [pwd, setPwd] = useState("");
+  const [services, setServices] = useState(servicesFallback);
+
+  // --- Load services from Supabase ---
+  useEffect(() => {
+    async function loadServices() {
+      const { data, error } = await supabase.from("services").select("*").order("sort_order");
+      if (error || !data || data.length === 0) return;
+      setServices(data.map((s) => ({
+        id: s.id, icon: s.icon, title: s.title, price: s.price,
+        img: s.image, desc: s.description, features: s.features || [], tag: s.tag,
+      })));
+    }
+    loadServices();
+  }, []);
 
   // --- Load offer bar settings from Supabase ---
   useEffect(() => {
@@ -825,7 +839,7 @@ export default function App() {
         </div>
       )}
 
-      {page === "home" && <HomePage go={go} />}
+      {page === "home" && <HomePage go={go} services={services} />}
       {page === "about" && <AboutPage />}
       {page === "gallery" && <GalleryPage />}
       {page === "contact" && <ContactPage />}
