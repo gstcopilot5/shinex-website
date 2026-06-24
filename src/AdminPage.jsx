@@ -415,4 +415,29 @@ export default function AdminPage() {
           <button onClick={loadAll} style={{ background: "none", border: "none", color: C.red, fontSize: 13, cursor: "pointer" }}>↻ Refresh</button>
         </div>
         {loadingData ? (
-          <p s
+          <p style={{ color: C.dim, fontSize: 14 }}>Loading…</p>
+        ) : bookings.length === 0 ? (
+          <p style={{ color: C.dim, fontSize: 14 }}>No bookings yet.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {bookings.map((b) => (
+              <div key={b.id} style={{ background: "#1d1d23", borderRadius: 10, padding: "12px 14px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                  <strong style={{ color: C.text, fontSize: 15 }}>{b.name || "—"}</strong>
+                  <span style={{ color: C.dim, fontSize: 12 }}>{b.created_at ? new Date(b.created_at).toLocaleDateString() : ""}</span>
+                </div>
+                <div style={{ color: C.dim, fontSize: 13, marginTop: 4 }}>
+                  <a href={`tel:${b.phone}`} style={{ color: C.red, textDecoration: "none" }}>{b.phone || "—"}</a>
+                  {b.city ? ` · ${b.city}` : ""}
+                  {b.vehicle ? ` · ${b.vehicle}` : ""}
+                </div>
+                {b.service ? <div style={{ color: C.text, fontSize: 13, marginTop: 4 }}>{b.service}</div> : null}
+                {b.message ? <div style={{ color: C.dim, fontSize: 13, marginTop: 4 }}>{b.message}</div> : null}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
