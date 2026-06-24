@@ -22,6 +22,8 @@ const inputStyle = {
   boxSizing: "border-box",
 };
 
+const smallInput = { ...inputStyle, padding: "9px 11px", fontSize: 14, marginBottom: 8 };
+
 const btnStyle = {
   width: "100%",
   padding: "13px",
@@ -33,6 +35,10 @@ const btnStyle = {
   fontWeight: 700,
   cursor: "pointer",
 };
+
+const labelStyle = { color: C.dim, fontSize: 12, display: "block", marginBottom: 4, marginTop: 4 };
+
+const emptyService = { title: "", icon: "", price: "", tag: "", image: "", description: "", features: [], sort_order: 0 };
 
 export default function AdminPage() {
   const [session, setSession] = useState(null);
@@ -46,6 +52,7 @@ export default function AdminPage() {
 
   // data
   const [bookings, setBookings] = useState([]);
+  const [services, setServices] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
 
   // offer editor
@@ -53,6 +60,11 @@ export default function AdminPage() {
   const [offerOpen, setOfferOpen] = useState(true);
   const [offerSaving, setOfferSaving] = useState(false);
   const [offerMsg, setOfferMsg] = useState("");
+
+  // service editor
+  const [editing, setEditing] = useState(null); // service object being edited (or new)
+  const [svcSaving, setSvcSaving] = useState(false);
+  const [svcMsg, setSvcMsg] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -82,6 +94,12 @@ export default function AdminPage() {
         .select("*")
         .order("created_at", { ascending: false });
       setBookings(b || []);
+
+      const { data: sv } = await supabase
+        .from("services")
+        .select("*")
+        .order("sort_order");
+      setServices(sv || []);
 
       const { data: s } = await supabase.from("settings").select("*");
       if (s) {
@@ -121,6 +139,61 @@ export default function AdminPage() {
     }
     setOfferSaving(false);
     setTimeout(() => setOfferMsg(""), 2500);
+  }
+
+  // ---- Service CRUD ----
+  function startNew() {
+    const maxOrder = services.reduce((m, s) => Math.max(m, s.sort_order || 0), 0);
+    setEditing({ ...emptyService, sort_order: maxOrder + 1 });
+    setSvcMsg("");
+  }
+
+  function startEdit(s) {
+    setEditing({ ...s, features: Array.isArray(s.features) ? s.features : [] });
+    setSvcMsg("");
+  }
+
+  function cancelEdit() {
+    setEditing(null);
+    setSvcMsg("");
+  }
+
+  async function saveService() {
+    if (!editing.title) { setSvcMsg("Title is required"); return; }
+    setSvcSaving(true);
+    setSvcMsg("");
+    const payload = {
+      title: editing.title,
+      icon: editing.icon,
+      price: editing.price,
+      tag: editing.tag,
+      image: editing.image,
+      description: editing.description,
+      features: editing.features,
+      sort_order: Number(editing.sort_order) || 0,
+    };
+    try {
+      if (editing.id) {
+        await supabase.from("services").update(payload).eq("id", editing.id);
+      } else {
+        await supabase.from("services").insert([payload]);
+      }
+      await loadAll();
+      setEditing(null);
+    } catch (e) {
+      setSvcMsg("Save failed");
+    }
+    setSvcSaving(false);
+  }
+
+  async function deleteService(id) {
+    if (!window.confirm("Delete this service?")) return;
+    try {
+      await supabase.from("services").delete().eq("id", id);
+      await loadAll();
+    } catch (e) {
+      // ignore
+    }
   }
 
   // ---- Loading splash ----
@@ -181,7 +254,7 @@ export default function AdminPage() {
       {/* Offer bar editor */}
       <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 18, marginBottom: 20 }}>
         <h3 style={{ color: C.text, margin: "0 0 14px", fontSize: 17 }}>Offer Bar</h3>
-        <label style={{ color: C.dim, fontSize: 13, display: "block", marginBottom: 6 }}>Banner text</label>
+        <label style={labelStyle}>Banner text</label>
         <input
           style={inputStyle}
           value={offerText}
@@ -207,6 +280,92 @@ export default function AdminPage() {
           </button>
           {offerMsg && <span style={{ color: offerMsg.includes("fail") ? C.red : "#4ade80", fontSize: 14 }}>{offerMsg}</span>}
         </div>
+      </section>
+
+      {/* Services CRUD */}
+      <section style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 18, marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <h3 style={{ color: C.text, margin: 0, fontSize: 17 }}>Services ({services.length})</h3>
+          {!editing && (
+            <button onClick={startNew} style={{ background: C.red, border: "none", color: "#fff", fontSize: 13, fontWeight: 700, padding: "8px 14px", borderRadius: 8, cursor: "pointer" }}>
+              + Add
+            </button>
+          )}
+        </div>
+
+        {editing ? (
+          <div style={{ background: "#1d1d23", borderRadius: 10, padding: 14 }}>
+            <h4 style={{ color: C.text, margin: "0 0 12px", fontSize: 15 }}>{editing.id ? "Edit service" : "New service"}</h4>
+            <label style={labelStyle}>Title *</label>
+            <input style={smallInput} value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} placeholder="Ceramic Coating" />
+
+            <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ flex: 1 }}>
+                <label style={labelStyle}>Icon (emoji)</label>
+                <input style={smallInput} value={editing.icon} onChange={(e) => setEditing({ ...editing, icon: e.target.value })} placeholder="💎" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={labelStyle}>Price</label>
+                <input style={smallInput} value={editing.price} onChange={(e) => setEditing({ ...editing, price: e.target.value })} placeholder="₹11,999" />
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ flex: 1 }}>
+                <label style={labelStyle}>Tag / badge</label>
+                <input style={smallInput} value={editing.tag} onChange={(e) => setEditing({ ...editing, tag: e.target.value })} placeholder="MOST POPULAR" />
+              </div>
+              <div style={{ width: 90 }}>
+                <label style={labelStyle}>Order</label>
+                <input style={smallInput} type="number" value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: e.target.value })} />
+              </div>
+            </div>
+
+            <label style={labelStyle}>Image path</label>
+            <input style={smallInput} value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} placeholder="/img/svc-ceramic.jpg" />
+
+            <label style={labelStyle}>Description</label>
+            <textarea style={{ ...smallInput, minHeight: 56, resize: "vertical" }} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} placeholder="9H hardness. Mirror gloss…" />
+
+            <label style={labelStyle}>Features (one per line)</label>
+            <textarea
+              style={{ ...smallInput, minHeight: 90, resize: "vertical" }}
+              value={(editing.features || []).join("\n")}
+              onChange={(e) => setEditing({ ...editing, features: e.target.value.split("\n").map((f) => f.trim()).filter(Boolean) })}
+              placeholder={"High Gloss Finish\nUV Protection\nHydrophobic Layer"}
+            />
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
+              <button onClick={saveService} disabled={svcSaving} style={{ ...btnStyle, width: "auto", padding: "10px 22px", opacity: svcSaving ? 0.6 : 1 }}>
+                {svcSaving ? "Saving…" : "Save"}
+              </button>
+              <button onClick={cancelEdit} style={{ background: "none", border: `1px solid ${C.border}`, color: C.dim, padding: "10px 18px", borderRadius: 10, fontSize: 14, cursor: "pointer" }}>
+                Cancel
+              </button>
+              {svcMsg && <span style={{ color: C.red, fontSize: 13 }}>{svcMsg}</span>}
+            </div>
+          </div>
+        ) : services.length === 0 ? (
+          <p style={{ color: C.dim, fontSize: 14 }}>No services yet.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {services.map((s) => (
+              <div key={s.id} style={{ background: "#1d1d23", borderRadius: 10, padding: "12px 14px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ color: C.text, fontSize: 15 }}>
+                    <span style={{ marginRight: 6 }}>{s.icon}</span>{s.title}
+                    {s.tag ? <span style={{ color: C.red, fontSize: 11, marginLeft: 8 }}>{s.tag}</span> : null}
+                  </div>
+                  <div style={{ color: C.dim, fontSize: 13, marginTop: 2 }}>{s.price}</div>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                  <button onClick={() => startEdit(s)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.text, padding: "6px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>Edit</button>
+                  <button onClick={() => deleteService(s.id)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.red, padding: "6px 12px", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>Del</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Bookings */}
@@ -245,9 +404,9 @@ export default function AdminPage() {
       </section>
 
       <p style={{ color: C.dim, fontSize: 12, textAlign: "center" }}>
-        Services & gallery editing coming in the next update.
+        Gallery editing coming in the next update.
       </p>
     </div>
   );
-            }
-            
+        }
+      
